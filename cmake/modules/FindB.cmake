@@ -1,0 +1,33 @@
+include(FindPackageHandleStandardArgs)
+
+find_path(B_INCLUDE_DIR
+    NAMES b.h
+    HINTS "${EXTERNAL_PROJECT_INSTALL_DIR}"
+    PATHS "${EXTERNAL_PROJECT_INSTALL_DIR}"
+    PATH_SUFFIXES include)
+
+find_library(B_LIBRARY
+    NAMES libB B
+    NAMES_PER_DIR
+    HINTS "${EXTERNAL_PROJECT_INSTALL_DIR}"
+    PATHS "${EXTERNAL_PROJECT_INSTALL_DIR}"
+    PATH_SUFFIXES lib)
+
+set(B_INCLUDE_DIRS ${B_INCLUDE_DIR})
+set(B_LIBRARIES ${B_LIBRARY})
+
+mark_as_advanced(B_INCLUDE_DIRS B_INCLUDE_DIR B_LIBRARIES B_LIBRARY)
+
+find_package_handle_standard_args(B
+    REQUIRED_VARS
+        B_LIBRARY
+        B_INCLUDE_DIR)
+
+if(B_FOUND AND NOT TARGET B::B AND EXISTS "${B_LIBRARY}")
+    add_library(B::B UNKNOWN IMPORTED)
+    set_target_properties(B::B
+        PROPERTIES
+            INTERFACE_INCLUDE_DIRECTORIES "${B_INCLUDE_DIR}"
+            IMPORTED_LINK_INTERFACE_LANGUAGE "CXX"
+            IMPORTED_LOCATIONS "${B_LIBRARY}")
+endif()

@@ -1,0 +1,33 @@
+include(FindPackageHandleStandardArgs)
+
+find_path(C_INCLUDE_DIR
+    NAMES c.h
+    HINTS "${EXTERNAL_PROJECT_INSTALL_DIR}"
+    PATHS "${EXTERNAL_PROJECT_INSTALL_DIR}"
+    PATH_SUFFIXES include)
+
+find_library(C_LIBRARY
+    NAMES libC C
+    NAMES_PER_DIR
+    HINTS "${EXTERNAL_PROJECT_INSTALL_DIR}"
+    PATHS "${EXTERNAL_PROJECT_INSTALL_DIR}"
+    PATH_SUFFIXES lib)
+
+set(C_INCLUDE_DIRS ${C_INCLUDE_DIR})
+set(C_LIBRARIES ${C_LIBRARY})
+
+mark_as_advanced(C_INCLUDE_DIRS C_INCLUDE_DIR C_LIBRARIES C_LIBRARY)
+
+find_package_handle_standard_args(C
+    REQUIRED_VARS
+        C_LIBRARY
+        C_INCLUDE_DIR)
+
+if(C_FOUND AND NOT TARGET C::C AND EXISTS "${C_LIBRARY}")
+    add_library(C::C UNKNOWN IMPORTED)
+    set_target_properties(C::C
+        PROPERTIES
+            INTERFACE_INCLUDE_DIRECTORIES "${C_INCLUDE_DIR}"
+            IMPORTED_LINK_INTERFACE_LANGUAGE "CXX"
+            IMPORTED_LOCATIONS "${C_LIBRARY}")
+endif()
